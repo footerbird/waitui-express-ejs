@@ -1,0 +1,12 @@
+<% for(let article of article_list){ %>
+<a href="/article_detail/<%= article.article_id %>.html" target="_blank" class="article-item">
+    <div class="thumb">
+        <img src="<%= article.thumb_path %>" alt="<%= article.article_title %>" />
+    </div>
+    <div class="limit">
+        <h4 class="title"><%= article.article_title %></h4>
+        <h5 class="summary"><%= article.article_lead %></h5>
+    </div>
+    <p><span class="author"><%= article.author_name %></span><span class="tag"><%= article.article_tag %>&nbsp;&nbsp;<%= article.create_time %></span></p>
+</a>
+<% } %>

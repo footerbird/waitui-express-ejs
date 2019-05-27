@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+    <%- include templete/pub_head %>
+    </head>
+    
+    <body>
+    
+    <%- include templete/menubar %>
+    
+    <div class="container after-cls pt30 pb30">
+        <div class="article-left">
+            <div class="hotwords">
+                <font>热搜词：</font>
+                <% for(let hotword of article_hotword){ %>
+                <a href="/article_search/<%= hotword.hotword_name %>" target="_blank"><%= hotword.hotword_name %></a>
+                <% } %>
+            </div>
+            
+            <div class="article-table">
+                <table width="100%">
+                    <tr>
+                        <td rowspan="2">
+                            <a href="/article_detail/<%= article_first.article_id %>.html" target="_blank" title="<%= article_first.article_title %>">
+                                <img class="big" src="<%= article_first.thumb_path %>" alt="<%= article_first.article_title %>" />
+                                <div class="title ta-c"><%= article_first.article_title %></div>
+                            </a>
+                        </td>
+                        <td class="pr0" width="240">
+                            <a href="/article_detail/<%= article_second.article_id %>.html" target="_blank" title="<%= article_second.article_title %>">
+                                <img src="<%= article_second.thumb_path %>" alt="<%= article_second.article_title %>" />
+                                <div class="title"><%= article_second.article_title %></div>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="pr0" width="240">
+                            <a href="/article_detail/<%= article_third.article_id %>.html" target="_blank" title="<%= article_third.article_title %>">
+                                <img src="<%= article_third.thumb_path %>" alt="<%= article_third.article_title %>" />
+                                <div class="title"><%= article_third.article_title %></div>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="categorys">
+                <a class="cur" href="javascript:;">最新文章</a>
+                <% for(let category of article_category){ %>
+                <a href="javascript:;" data-category="<%= category.category_type %>"><%= category.category_name %></a>
+                <% } %>
+            </div>
+            
+            <input type="hidden" id="article_category" value="" />
+            <input type="hidden" id="article_page" value="1" />
+            
+            <div class="article-list" id="article_list">
+                <% for(let article of article_list){ %>
+                <a href="/article_detail/<%= article.article_id %>.html" target="_blank" class="article-item">
+                    <div class="thumb">
+                        <img src="<%= article.thumb_path %>" alt="<%= article.article_title %>" />
+                    </div>
+                    <div class="limit">
+                        <h4 class="title"><%= article.article_title %></h4>
+                        <h5 class="summary"><%= article.article_lead %></h5>
+                    </div>
+                    <p><span class="author"><%= article.author_name %></span><span class="tag"><%= article.article_tag %>&nbsp;&nbsp;<%= article.create_time %></span></p>
+                </a>
+                <% } %>
+            </div>
+            
+            <div class="article-loadmore" id="article_loading">加载中，请稍后...</div>
+            <div class="article-loadmore" id="article_loadnone" style="display: none;">喂喂，你触碰到我的底线了</div>
+            
+        </div>
+        <div class="article-right">
+            <div class="search">
+                <form id="search_form" action="" target="_blank" method="post"></form>
+                <input type="text" placeholder="大家都在搜" id="keyword" onkeyup="keywordEnter()" />
+                <input type="button" id="keywordBtn" onclick="keywordSearch()" />
+            </div>
+            
+            <div class="flash">
+                <h4 class="title">7×24h&nbsp;快讯</h4>
+                <% for(let flash of flash_list){ %>
+                <div class="flash-item">
+                    <a href="javascript:;"><%= flash.flash_title %></a>
+                    <div><%- flash.flash_content %></div>
+                    <p><%= flash.create_time %></p>
+                </div>
+                <% } %>
+            </div>
+            
+            <div class="swiper-container swiper mt20" id="article_swiper">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <a href="javascript:;">
+                            <img src="/images/welfare/welfare_banner_1.jpg" />
+                        </a>
+                    </div>
+                    <div class="swiper-slide">
+                        <a href="javascript:;">
+                            <img src="/images/welfare/welfare_banner_2.jpg" />
+                        </a>
+                    </div>
+                </div>
+                <!-- Add Pagination -->
+                <div class="swiper-pagination"></div>
+                <!-- 如果需要导航按钮 -->
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-button-next"></div>
+            </div>
+            
+            <div class="recommend mt20" style="border-top: none;">
+                <h4 class="title">推荐阅读</h4>
+                <% for(let recommend of article_recommend){ %>
+                <div class="recommend-item">
+                    <a href="/article_detail/<%= recommend.article_id %>.html" target="_blank"><%= recommend.article_title %></a>
+                </div>
+                <% } %>
+            </div>
+            
+        </div>
+    </div>
+    
+    <%- include templete/pub_foot %>
+    
+    <script type="text/javascript">
+    function keywordEnter(e){
+        var eve = e || window.event;
+        if(eve.keyCode == 13){
+            keywordSearch();
+        }
+    }
+    
+    function keywordSearch(){
+        if($.trim($("#keyword").val()) == ""){
+            return;
+        }
+        $("#search_form").attr('action','/article_search/'+$("#keyword").val());
+        $("#search_form").submit();
+    }
+    
+    $(function(){
+        
+        lazyLoading();//图片懒加载
+        $(window).on("scroll",function(){
+            lazyLoading();
+        })
+        
+        scrollTop("ico_top");//返回顶部
+        
+        var mySwiper = new Swiper ('#article_swiper', {
+            loop : true,
+            autoplay: {
+                delay: 8000,//8秒切换一次
+            },
+            pagination: {
+                el: '.swiper-pagination',
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            }
+        })
+        
+        $(".flash-item a").on("click",function(){
+            $(this).parent().toggleClass("active");
+            $(this).siblings("div").slideToggle();
+        })
+        
+        var article_loading = false;//状态标记
+        $(window).on("scroll",function(){
+            if($("#article_loadnone").is(":visible")) return;
+            if($(window).scrollTop() + $(window).height() + 100 < $(document).height()) return;
+            if(article_loading) return;
+            article_loading = true;
+            var current_page = parseInt($("#article_page").val());
+            $.ajax({
+                type:"post",
+                url:"/get_articleListAjax_tpl",
+                async:true,
+                data:{
+                    category:$("#article_category").val(),
+                    page: current_page+1
+                },
+                success:function(html){
+                    var $html = $(html.replace(/[\r\n]/g,""));
+                    if($html.length < 10){
+                        $("#article_loading").hide();
+                        $("#article_loadnone").show();
+                    }
+                    $("#article_list").append(html);
+                    $("#article_page").val(current_page+1);
+                    article_loading = false;
+                }
+            });
+        })
+        
+        $(".categorys a").on("click",function(){
+            $("#article_category").val($(this).data("category")?$(this).data("category"):"");
+            $(this).addClass("cur").siblings().removeClass("cur");
+            $("#article_list").empty();
+            $("#article_page").val(0);
+            $("#article_loading").show();
+            $("#article_loadnone").hide();
+            article_loading = true;
+            var current_page = parseInt($("#article_page").val());
+            var repeatArr = [<%= article_first.article_id %>,<%= article_second.article_id %>,<%= article_third.article_id %>];
+            $.ajax({
+                type:"post",
+                url:"/get_articleListAjax_tpl",
+                async:true,
+                data:{
+                    category:$("#article_category").val(),
+                    page: current_page+1,
+                    repeat: repeatArr
+                },
+                success:function(html){
+                    var $html = $(html.replace(/[\r\n]/g,""));
+                    if($html.length < 10){
+                        $("#article_loading").hide();
+                        $("#article_loadnone").show();
+                    }
+                    $("#article_list").html(html);
+                    $("#article_page").val(current_page+1);
+                    article_loading = false;
+                }
+            });
+        })
+        
+    })
+    </script>
+    </body>
+</html>
